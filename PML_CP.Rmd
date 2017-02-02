@@ -1,0 +1,75 @@
+---
+title: "Practical Machine Learning Course Project"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Executive Summary
+
+In this project, the goal is to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).
+
+This report describes how the data are used to predict the movement involved based on the above classification, and then to predict the movement for 20 test cases.
+
+## Prepare the dataset
+### Download the dataset
+```{r}
+library(caret)
+
+training<-read.csv("./pml-training.csv",na.strings=c("NA","#DIV/0!",""))
+target<-read.csv("./pml-testing.csv",na.strings=c("NA","#DIV/0!",""))
+```
+
+### Clean and remove near zero predictors
+
+```{r}
+# remove variables with nearly zero variance
+nzv <- nearZeroVar(training)
+training <- training[, -nzv]
+
+# remove variables that are almost always NA
+mostlyNA <- sapply(training, function(x) mean(is.na(x))) > 0.95
+training <- training[, mostlyNA==F]
+
+# remove variables that don't make intuitive sense for prediction (X, user_name, raw_timestamp_part_1, raw_timestamp_part_2, cvtd_timestamp), which happen to be the first five variables
+training <- training[, -(1:5)]
+```
+
+### Split data for training
+60% for training, 40% for testing
+```{r}
+set.seed(1000)
+inTrain <- createDataPartition(y=training$classe, p=0.6, list=FALSE)
+training <- training[inTrain, ]; testing <- training[-inTrain, ]
+dim(training);dim(testing)
+```
+
+## Training
+### Create Prediction Model by Random Forest 
+As the outcomes are categorical, use Random Forest to create prediction model and instruct the "train" function to use 3-fold cross-validation to select optimal tuning parameters for the model.
+``` {r}
+# instruct train to use 3-fold CV to select optimal tuning parameters
+fitControl <- trainControl(method="cv", number=3, verboseIter=F)
+
+fit <- train(classe ~ ., data=training, method="rf", trControl=fitControl)
+print(fit)
+
+# print final model to see tuning parameters it chose
+fit$finalModel
+```
+The model uses 500 trees and tries 27 variables at each split with accuracy of 99.3%
+
+### Model Evaluation
+Now use this model to predict the testing data derived from training dataset
+```{r}
+# use model to predict classe in validation set (ptrain2)
+prediction <- predict(fit, newdata=testing)
+
+# show confusion matrix to get estimate of out-of-sample error
+confusionMatrix(testing$classe, prediction)
+```
+The accuracy of this model is 100%! on the testing data, it's really good accuracy but we might get different result on the actuall test dataset. We can then use this model on the test dataset.
