@@ -256,6 +256,12 @@ confusionMatrix(testing$classe, prediction)</code></pre>
 <p>The accuracy of this model is 100%! on the testing data, it’s really good accuracy but we might get different result on the actuall test dataset. We can then use this model on the test dataset.</p>
 </div>
 </div>
+<div id="applying-prediction-to-real-test-dataset" class="section level2">
+<h2>Applying Prediction to Real Test Dataset</h2>
+<pre class="r"><code>predict(fit, newdata=target)</code></pre>
+<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
+## Levels: A B C D E</code></pre>
+</div>
 
 
 

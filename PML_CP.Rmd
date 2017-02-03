@@ -73,3 +73,8 @@ prediction <- predict(fit, newdata=testing)
 confusionMatrix(testing$classe, prediction)
 ```
 The accuracy of this model is 100%! on the testing data, it's really good accuracy but we might get different result on the actuall test dataset. We can then use this model on the test dataset.
+
+## Applying Prediction to Real Test Dataset
+```{r}
+predict(fit, newdata=target)
+```
