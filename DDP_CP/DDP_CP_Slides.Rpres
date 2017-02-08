@@ -1,0 +1,48 @@
+Developing Data Products Course Project
+========================================================
+author: 
+date: February 8, 2017
+autosize: true
+
+Background
+========================================================
+
+- This presentation is part of Coursera's Developing Data Products Course Project
+- The project contains shiny app creation for Iris Species Prediction using R dataset
+- Shiny app is deployed here: https://avalondigo.shinyapps.io/irisPrediction/
+- Source code is uploaded to GitHub: https://github.com/irfansetiahpe/dsc/tree/master/irisPrediction
+
+Shiny Application Details
+========================================================
+
+- Uses iris dataset on R
+- Trains prediction model using Random Forest method
+- Retrieves input as test data from user
+- Displays output of predicted species and Random Forest plot
+
+```{r}
+summary(iris)
+```
+
+Shiny Application Prediction Training
+========================================================
+
+```{r}
+library(caret)
+
+# reading data
+data(iris)
+
+# use all data for training
+inTrain <- createDataPartition(y=iris$Species, p = 1, list=FALSE)
+training <- iris[inTrain,]
+
+# instruct train to use 3-fold CV to select optimal tuning parameters
+fitControl <- trainControl(method="cv", number=3, verboseIter=F)
+
+# generate random forest
+fit <- train(Species ~ ., data=training, method="rf", trControl=fitControl)
+```
+
+Thank you
+========================================================
